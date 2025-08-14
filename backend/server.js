@@ -20,6 +20,7 @@ app.use(helmet());
 app.use(morgan("dev")); // log the requests
 
 // apply arcjet rate-limit to all routes
+//
 app.use(async (req, res, next) => {
     try {
       const decision = await aj.protect(req, {
