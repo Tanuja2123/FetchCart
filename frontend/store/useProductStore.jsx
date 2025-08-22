@@ -36,7 +36,11 @@ export const useProductStore = create((set, get) => ({
       document.getElementById("add_product_modal").close();
     } catch (error) {
       console.log("Error in addProduct function", error);
-      toast.error("Something went wrong");
+      if (error.code === 'ERR_NETWORK') {
+        toast.error("Cannot connect to server. Please start the backend server.");
+      } else {
+        toast.error("Something went wrong");
+      }
     } finally {
       set({ loading: false });
     }
@@ -48,9 +52,13 @@ export const useProductStore = create((set, get) => ({
       const response = await axios.get(`${BASE_URL}/api/products`);
       set({ products: response.data.data, error: null });
     } catch (err) {
-      if (err.status == 429)
+      if (err.response?.status === 429) {
         set({ error: "Rate limit exceeded", products: [] });
-      else set({ error: "Something went wrong", products: [] });
+      } else if (err.code === 'ERR_NETWORK') {
+        set({ error: "Cannot connect to server. Please start the backend server.", products: [] });
+      } else {
+        set({ error: "Something went wrong", products: [] });
+      }
     } finally {
       set({ loading: false });
     }
